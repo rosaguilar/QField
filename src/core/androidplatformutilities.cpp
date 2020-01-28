@@ -93,7 +93,7 @@ QAndroidJniObject AndroidPlatformUtilities::getNativeExtras() const
   return nullptr;
 }
 
-PictureSource *AndroidPlatformUtilities::getCameraPicture( const QString &prefix)
+PictureSource *AndroidPlatformUtilities::getCameraPicture( const QString &prefix, const QString &pictureFilePath )
 {
   if ( !checkCameraPermissions() )
     return nullptr;
@@ -104,23 +104,31 @@ PictureSource *AndroidPlatformUtilities::getCameraPicture( const QString &prefix
 
   intent.callObjectMethod( "setClassName", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;", packageName.object<jstring>(), activity.object<jstring>() );
 
+  QAndroidJniObject pictureFilePath_label = QAndroidJniObject::fromString( "pictureFilePath" );
+  QAndroidJniObject pictureFilePath_value = QAndroidJniObject::fromString( pictureFilePath );
+
+  intent.callObjectMethod( "putExtra",
+                           "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                           pictureFilePath_label.object<jstring>(),
+                           pictureFilePath_value.object<jstring>() );
+
   QAndroidJniObject prefix_label = QAndroidJniObject::fromString( "prefix" );
   QAndroidJniObject prefix_value = QAndroidJniObject::fromString( prefix );
 
-  intent.callObjectMethod("putExtra",
-                          "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
-                          prefix_label.object<jstring>(),
-                          prefix_value.object<jstring>());
+  intent.callObjectMethod( "putExtra",
+                           "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                           prefix_label.object<jstring>(),
+                           prefix_value.object<jstring>() );
 
   AndroidPictureSource *pictureSource = nullptr;
   pictureSource = new AndroidPictureSource( prefix );
 
-  QtAndroid::startActivity( intent.object<jobject>(), 171, pictureSource);
+  QtAndroid::startActivity( intent.object<jobject>(), 171, pictureSource );
 
   return pictureSource;
 }
 
-PictureSource *AndroidPlatformUtilities::getGalleryPicture( const QString &prefix)
+PictureSource *AndroidPlatformUtilities::getGalleryPicture( const QString &prefix, const QString &pictureFilePath )
 {
   QAndroidJniObject activity = QAndroidJniObject::fromString( QStringLiteral( "ch.opengis.qfield.QFieldGalleryPictureActivity" ) );
   QAndroidJniObject intent = QAndroidJniObject( "android/content/Intent", "(Ljava/lang/String;)V", activity.object<jstring>() );
@@ -128,18 +136,26 @@ PictureSource *AndroidPlatformUtilities::getGalleryPicture( const QString &prefi
 
   intent.callObjectMethod( "setClassName", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;", packageName.object<jstring>(), activity.object<jstring>() );
 
+  QAndroidJniObject pictureFilePath_label = QAndroidJniObject::fromString( "pictureFilePath" );
+  QAndroidJniObject pictureFilePath_value = QAndroidJniObject::fromString( pictureFilePath );
+
+  intent.callObjectMethod( "putExtra",
+                           "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                           pictureFilePath_label.object<jstring>(),
+                           pictureFilePath_value.object<jstring>() );
+
   QAndroidJniObject prefix_label = QAndroidJniObject::fromString( "prefix" );
   QAndroidJniObject prefix_value = QAndroidJniObject::fromString( prefix );
 
-  intent.callObjectMethod("putExtra",
-                          "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
-                          prefix_label.object<jstring>(),
-                          prefix_value.object<jstring>());
+  intent.callObjectMethod( "putExtra",
+                           "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;",
+                           prefix_label.object<jstring>(),
+                           prefix_value.object<jstring>() );
 
   AndroidPictureSource *pictureSource = nullptr;
   pictureSource = new AndroidPictureSource( prefix );
 
-  QtAndroid::startActivity( intent.object<jobject>(), 171, pictureSource);
+  QtAndroid::startActivity( intent.object<jobject>(), 171, pictureSource );
 
   return pictureSource;
 }
@@ -169,7 +185,7 @@ ProjectSource *AndroidPlatformUtilities::openProject()
   QAndroidJniObject intent = QAndroidJniObject( "android/content/Intent", "(Ljava/lang/String;)V", activity.object<jstring>() );
 
   QAndroidJniObject packageName = QAndroidJniObject::fromString( QStringLiteral( "ch.opengis.qfield" ) );
-  QAndroidJniObject className = QAndroidJniObject::fromString( QStringLiteral( "ch.opengis.qfield.QFieldProjectActivity" ) );  
+  QAndroidJniObject className = QAndroidJniObject::fromString( QStringLiteral( "ch.opengis.qfield.QFieldProjectActivity" ) );
 
   intent.callObjectMethod( "setClassName", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;", packageName.object<jstring>(), className.object<jstring>() );
 
@@ -259,9 +275,9 @@ void AndroidPlatformUtilities::showRateThisApp() const
   QAndroidJniObject intent = QAndroidJniObject( "android/content/Intent", "(Ljava/lang/String;)V", activity.object<jstring>() );
 
   QAndroidJniObject packageName = QAndroidJniObject::fromString( QStringLiteral( "ch.opengis.qfield" ) );
-  QAndroidJniObject className = QAndroidJniObject::fromString( QStringLiteral( "ch.opengis.qfield.QFieldAppRaterActivity" ) );  
+  QAndroidJniObject className = QAndroidJniObject::fromString( QStringLiteral( "ch.opengis.qfield.QFieldAppRaterActivity" ) );
 
   intent.callObjectMethod( "setClassName", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;", packageName.object<jstring>(), className.object<jstring>() );
 
-    QtAndroid::startActivity( intent.object<jobject>(), 104);
+  QtAndroid::startActivity( intent.object<jobject>(), 104 );
 }

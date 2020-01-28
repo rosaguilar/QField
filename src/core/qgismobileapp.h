@@ -44,6 +44,8 @@
 #include "androidplatformutilities.h"
 #endif
 
+#include "expressioncontextutils.h"
+
 class AppInterface;
 class QgsOfflineEditing;
 class QgsQuickMapCanvasMap;
@@ -149,6 +151,8 @@ class QgisMobileapp : public QQmlApplicationEngine
 #else
     PlatformUtilities mPlatformUtils;
 #endif
+
+    ExpressionUtils mExpressionUtils;
 };
 
 Q_DECLARE_METATYPE( QgsWkbTypes::GeometryType )

@@ -6,6 +6,8 @@ import Theme 1.0
 import ".." as QField
 import QtQuick.Window 2.2
 
+import org.qfield 1.0
+
 Item {
   signal valueChanged(var value, bool isNull)
 
@@ -81,12 +83,15 @@ Item {
     visible: !readOnly
 
     onClicked: {
-      if ( settings.valueBool("nativeCamera", true) ) {
-        __pictureSource = platformUtilities.getCameraPicture(qgisProject.homePath + '/DCIM')
-      } else {
-        platformUtilities.createDir( qgisProject.homePath, 'DCIM' )
-        camloader.active = true
-      }
+        if ( settings.valueBool("nativeCamera", true) ) {
+            var filepath = expressionUtils.evaluate("'DCIM/Tast/'||\"street\" ||'_test_heiz_'||'.jpg'", currentFeature)
+            if( !filepath )
+                filepath = 'DCIM/JPEG_'+(new Date()).toISOString().replace(/[^0-9]/g, "")+'.jpg'
+            __pictureSource = platformUtilities.getCameraPicture(qgisProject.homePath+'/',filepath)
+        } else {
+            platformUtilities.createDir( qgisProject.homePath, 'DCIM' )
+            camloader.active = true
+        }
     }
 
     iconSource: Theme.getThemeIcon("ic_camera_alt_border_24dp")
@@ -104,7 +109,10 @@ Item {
     visible: !readOnly
 
     onClicked: {
-        __pictureSource = platformUtilities.getGalleryPicture(qgisProject.homePath + '/DCIM')
+        var filepath = expressionUtils.evaluate("DCIM/Tast/'||\"street\" ||'_test_heiz_'||'.jpg'", currentFeature)
+        if( !filepath )
+            filepath = 'DCIM/JPEG_'+(new Date()).toISOString().replace(/[^0-9]/g, "")+'.jpg'
+        __pictureSource = platformUtilities.getGalleryPicture(qgisProject.homePath+'/', filepath)
     }
 
     iconSource: Theme.getThemeIcon("baseline_photo_library_black_24")
@@ -161,10 +169,14 @@ Item {
   Connections {
     target: __pictureSource
     onPictureReceived: {
+<<<<<<< HEAD
       if( path )
       {
           valueChanged('DCIM/' + path, false)
       }
+=======
+      valueChanged(path, false)
+>>>>>>> use exception for image path - prototype
     }
   }
 }

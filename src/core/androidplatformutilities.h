@@ -31,8 +31,8 @@ class AndroidPlatformUtilities : public PlatformUtilities
     virtual QString shareDir() const override;
     virtual QString packagePath() const override;
     virtual QString qgsProject() const override;
-    virtual PictureSource *getCameraPicture( const QString &prefix) override;
-    virtual PictureSource *getGalleryPicture( const QString &prefix) override;
+    virtual PictureSource *getCameraPicture( const QString &prefix, const QString &pictureFilePath ) override;
+    virtual PictureSource *getGalleryPicture( const QString &prefix, const QString &pictureFilePath ) override;
     virtual void open( const QString &uri, const QString &mimeType ) override;
     virtual ProjectSource *openProject() override;
 

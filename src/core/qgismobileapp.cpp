@@ -92,6 +92,7 @@
 #include "referencingfeaturelistmodel.h"
 #include "featurechecklistmodel.h"
 #include "geometryeditorsmodel.h"
+#include "expressioncontextutils.h"
 
 // Check QGIS Version
 #if VERSION_INT >= 30600
@@ -253,6 +254,7 @@ void QgisMobileapp::initDeclarative()
   qmlRegisterUncreatableType<Settings>( "org.qgis", 1, 0, "Settings", "" );
   qmlRegisterUncreatableType<PlatformUtilities>( "org.qgis", 1, 0, "PlatformUtilities", "" );
   qmlRegisterUncreatableType<LayerTreeModel>( "org.qfield", 1, 0, "LayerTreeModel", "The LayerTreeModel is available as context property `layerTree`." );
+  qmlRegisterUncreatableType<ExpressionUtils>( "org.qfield", 1, 0, "ExpressionUtils", "" );
 
   qRegisterMetaType<SnappingResult>( "SnappingResult" );
 
@@ -275,6 +277,7 @@ void QgisMobileapp::initDeclarative()
   rootContext()->setContextProperty( "UnitTypes", QVariant::fromValue<QgsUnitTypes>( mUnitTypes ) );
   rootContext()->setContextProperty( "ExifTools", QVariant::fromValue<QgsExifTools>( mExifTools ) );
   rootContext()->setContextProperty( "LocatorModelNoGroup", QgsLocatorModel::NoGroup );
+  rootContext()->setContextProperty( "expressionUtils", &mExpressionUtils );
 // Check QGIS Version
 #if VERSION_INT >= 30600
   rootContext()->setContextProperty( "qfieldAuthRequestHandler", mAuthRequestHandler );
