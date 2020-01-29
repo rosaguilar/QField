@@ -18,6 +18,14 @@ Item {
 
   property PictureSource __pictureSource
 
+  ExpressionUtils {
+    id: expressionUtils
+    expressionText: "'DCIM/Tast/'||\"street\" ||'_'||@layer_name||'.jpg'"
+    feature: currentFeature
+    project: qgisProject
+    layer: currentLayer
+  }
+
   Image {
     property var currentValue: value
 
@@ -84,7 +92,7 @@ Item {
 
     onClicked: {
         if ( settings.valueBool("nativeCamera", true) ) {
-            var filepath = expressionUtils.evaluate("'DCIM/Tast/'||\"street\" ||'_'||@layer_name||'.jpg'", currentFeature)
+            var filepath = expressionUtils.evaluate()
             if( !filepath )
                 filepath = 'DCIM/JPEG_'+(new Date()).toISOString().replace(/[^0-9]/g, "")+'.jpg'
             __pictureSource = platformUtilities.getCameraPicture(qgisProject.homePath+'/',filepath)
@@ -109,7 +117,7 @@ Item {
     visible: !readOnly
 
     onClicked: {
-        var filepath = expressionUtils.evaluate("DCIM/Tast/'||\"street\" ||@project_basename||'.jpg'", currentFeature)
+        var filepath = expressionUtils.evaluate()
         if( !filepath )
             filepath = 'DCIM/JPEG_'+(new Date()).toISOString().replace(/[^0-9]/g, "")+'.jpg'
         __pictureSource = platformUtilities.getGalleryPicture(qgisProject.homePath+'/', filepath)
@@ -153,7 +161,7 @@ Item {
 
         onFinished: {
             Project.re
-            var filepath = expressionUtils.evaluate("DCIM/Tast/'||\"street\" ||'_test_heiz_'||'.jpg'", currentFeature)
+            var filepath = expressionUtils.evaluate()
             if( !filepath )
                 filepath = 'DCIM/JPEG_'+(new Date()).toISOString().replace(/[^0-9]/g, "")+'.jpg'
             platformUtilities.renameFile( path, qgisProject.homePath +'/' + filepath)
