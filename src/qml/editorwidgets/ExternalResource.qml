@@ -20,9 +20,7 @@ Item {
 
   ExpressionUtils {
     id: expressionUtils
-    expressionText: qgisProject.readEntry('qfieldsync','/picturePathExpression') //"'DCIM/sync/'||\"street\" ||'_'||@layer_name||_||@project_crs||'.jpg'"
     feature: currentFeature
-    project: qgisProject
     layer: currentLayer
   }
 
