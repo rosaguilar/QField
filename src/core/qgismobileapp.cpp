@@ -92,7 +92,7 @@
 #include "referencingfeaturelistmodel.h"
 #include "featurechecklistmodel.h"
 #include "geometryeditorsmodel.h"
-#include "expressioncontextutils.h"
+#include "expressionutils.h"
 
 // Check QGIS Version
 #if VERSION_INT >= 30600
