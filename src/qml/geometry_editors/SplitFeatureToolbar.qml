@@ -3,6 +3,7 @@ import org.qgis 1.0
 import org.qfield 1.0
 import Theme 1.0
 import Utils 1.0
+import ".."
 
 
 VisibilityFadingRow {

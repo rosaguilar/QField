@@ -27,6 +27,7 @@ import QtPositioning 5.11
 import Theme 1.0
 
 import '.'
+import 'geometry_editors'
 
 ApplicationWindow {
   id: mainWindow
@@ -653,6 +654,7 @@ ApplicationWindow {
       featureModel: geometryEditingFeature
       mapSettings: mapCanvas.mapSettings
       editorRubberbandModel: geometryEditorsRubberband.model
+      mainWindow: mainWindow
 
       stateVisible: ( stateMachine.state === "digitize" && vertexModel.vertexCount > 0 )
     }

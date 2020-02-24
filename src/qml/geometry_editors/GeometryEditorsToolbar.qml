@@ -3,7 +3,7 @@ import QtQml.Models 2.12
 import org.qgis 1.0
 import org.qfield 1.0
 import Theme 1.0
-
+import ".."
 
 /**
 This contains several geometry editing tools
@@ -28,13 +28,14 @@ VisibilityFadingRow {
     id: editors
   }
   Component.onCompleted: {
-    editors.addEditor("Vertex tool", "ray-vertex", "VertexEditorToolbar.qml")
-    editors.addEditor("Split tool", "content-cut", "SplitFeatureToolbar.qml", GeometryEditorsModelSingleton.Line | GeometryEditorsModelSingleton.Polygon)
+    editors.addEditor(qsTr("Vertex Tool"), "ray-vertex", "VertexEditorToolbar.qml")
+    editors.addEditor(qsTr("Split tTool"), "content-cut", "SplitFeatureToolbar.qml", GeometryEditorsModelSingleton.Line | GeometryEditorsModelSingleton.Polygon)
+    editors.addEditor(qsTr("Fill Ring Tool"), "content-cut", "FillRingToolBar.qml", GeometryEditorsModelSingleton.Polygon)
   }
 
   function init() {
     selectorRow.stateVisible = false
-    var lastUsed = settings.setValue( "/QField/GeometryEditorLastUsed", 0 )
+    var lastUsed = settings.value( "/QField/GeometryEditorLastUsed", 0 )
     var toolbarQml = editors.data(editors.index(lastUsed,0), GeometryEditorsModelSingleton.ToolbarRole)
     var iconPath = editors.data(editors.index(lastUsed,0), GeometryEditorsModelSingleton.IconPathRole)
     toolbarRow.load(toolbarQml, iconPath)
