@@ -21,36 +21,47 @@ VisibilityFadingRow {
     showConfirmButton: true
 
     onConfirm: {
-      var line = drawLineToolbar.rubberbandModel.pointSequence(featureModel.currentLayer.crs)
+      var closeLine = true
+      var line = drawPolygonToolbar.rubberbandModel.pointSequence(featureModel.currentLayer.crs, featureModel.currentLayer.wkbType(), closeLine)
       if (!featureModel.currentLayer.editBuffer())
         featureModel.currentLayer.startEditing()
-      var result = featureModel.currentLayer.addRing( line, featureModel.feature.id)
+      var result = featureModel.currentLayer.addRing(line, featureModel.feature.id)
       if ( result !== QgsGeometryStatic.Success )
       {
         // TODO WARN
+        /*
+      AddRingNotClosed, //!< The input ring is not closed
+      AddRingNotValid, //!< The input ring is not valid
+      AddRingCrossesExistingRings, //!< The input ring crosses existing rings (it is not disjoint)
+      AddRingNotInExistingFeature
+      */
         featureModel.currentLayer.rollBack()
       }
       else
       {
-
         polygonGeometry = QFieldUtils.lineToPolygonGeometry(line)
 
+        // Show form
+        var popupComponent = Qt.createComponent("qrc:/EmbeddedFeatureForm.qml")
+        var popup2 = popupComponent.createObject(drawPolygonToolbar);
+        popup2.open()
 
-        // TODO SHOW FORM
 
-        featureModel.currentLayer.commitChanges()
+        embeddedPopup.state = 'Add'
+        embeddedPopup.attributeFormModel.featureModel.currentLayer = featureModel.currentLayer
+        embeddedPopup.attributeFormModel.featureModel.resetAttributes()
+        embeddedPopup.open()
       }
       cancel()
       finished()
     }
-
-
   }
 
   function init(featureModel, mapSettings, editorRubberbandModel)
   {
-    splitFeatureToolbar.featureModel = featureModel
+    fillRingToolbar.featureModel = featureModel
     drawPolygonToolbar.rubberbandModel = editorRubberbandModel
+    drawPolygonToolbar.rubberbandModel.geometryType = QgsWkbTypes.PolygonGeometry
     drawPolygonToolbar.mapSettings = mapSettings
     drawPolygonToolbar.stateVisible = true
   }

@@ -654,7 +654,6 @@ ApplicationWindow {
       featureModel: geometryEditingFeature
       mapSettings: mapCanvas.mapSettings
       editorRubberbandModel: geometryEditorsRubberband.model
-      mainWindow: mainWindow
 
       stateVisible: ( stateMachine.state === "digitize" && vertexModel.vertexCount > 0 )
     }
