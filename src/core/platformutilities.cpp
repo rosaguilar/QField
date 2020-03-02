@@ -78,10 +78,9 @@ PictureSource *PlatformUtilities::getGalleryPicture( const QString &prefix, cons
   return nullptr;
 }
 
-void PlatformUtilities::open( const QString &uri, const QString &mimeType )
+void PlatformUtilities::open( const QString &uri )
 {
   QDesktopServices::openUrl( QUrl( uri ) );
-  Q_UNUSED( mimeType )
 }
 
 QString PlatformUtilities::fieldType( const QgsField &field ) const

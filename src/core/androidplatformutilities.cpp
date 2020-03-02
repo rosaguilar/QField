@@ -25,6 +25,7 @@
 #include <QtAndroid>
 #include <QDebug>
 #include <QAndroidJniEnvironment>
+#include <QMimeDatabase>
 
 AndroidPlatformUtilities::AndroidPlatformUtilities()
 {
@@ -160,19 +161,24 @@ PictureSource *AndroidPlatformUtilities::getGalleryPicture( const QString &prefi
   return pictureSource;
 }
 
-void AndroidPlatformUtilities::open( const QString &uri, const QString &mimeType )
+void AndroidPlatformUtilities::open( const QString &uri )
 {
   checkWriteExternalStoragePermissions();
-  QAndroidJniObject actionView = QAndroidJniObject::getStaticObjectField( "android/intent/action", "ACTION_VIEW", "Ljava/lang/String;" );
 
-  QAndroidJniObject intent = QAndroidJniObject( "android/content/Intent", "(Ljava/lang/String;)V", actionView.object<jstring>() );
+  QAndroidJniObject activity = QAndroidJniObject::fromString( QStringLiteral( "ch.opengis.qfield.QFieldOpenExternallyActivity" ) );
+  QAndroidJniObject intent = QAndroidJniObject( "android/content/Intent", "(Ljava/lang/String;)V", activity.object<jstring>() );
+  QAndroidJniObject packageName = QAndroidJniObject::fromString( QStringLiteral( "ch.opengis.qfield" ) );
 
-  QAndroidJniObject jDataString = QAndroidJniObject::fromString( uri );
-  QAndroidJniObject jType = QAndroidJniObject::fromString( mimeType );
+  intent.callObjectMethod( "setClassName", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;", packageName.object<jstring>(), activity.object<jstring>() );
 
-  QAndroidJniObject jData = QAndroidJniObject::callStaticObjectMethod( "android/net/Uri", "parse", "(Ljava/lang/String;)Landroid/net/Uri;", jDataString.object<jstring>() );
+  QMimeDatabase db;
+  QAndroidJniObject filepath_label = QAndroidJniObject::fromString( "filepath" );
+  QAndroidJniObject filepath = QAndroidJniObject::fromString( uri );
+  QAndroidJniObject filetype_label = QAndroidJniObject::fromString( "filetype" );
+  QAndroidJniObject filetype = QAndroidJniObject::fromString( db.mimeTypeForFile( uri ).name() );
 
-  intent.callObjectMethod( "setDataAndType", "(Landroid/net/Uri;Ljava/lang/String;)Landroid/content/Intent;", jData.object<jobject>(), jType.object<jstring>() );
+  intent.callObjectMethod( "putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;", filepath_label.object<jstring>(), filepath.object<jstring>() );
+  intent.callObjectMethod( "putExtra", "(Ljava/lang/String;Ljava/lang/String;)Landroid/content/Intent;", filetype_label.object<jstring>(), filetype.object<jstring>() );
 
   QtAndroid::startActivity( intent.object<jobject>(), 102 );
 }
@@ -251,7 +257,7 @@ void AndroidPlatformUtilities::setScreenLockPermission( const bool allowLock )
 {
   if ( mActivity.isValid() )
   {
-    QAndroidJniObject window = mActivity.callObjectMethod("getWindow", "()Landroid/view/Window;");
+    QAndroidJniObject window = mActivity.callObjectMethod( "getWindow", "()Landroid/view/Window;" );
 
     if ( window.isValid() )
     {
