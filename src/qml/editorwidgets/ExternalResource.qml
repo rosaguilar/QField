@@ -22,7 +22,7 @@ Item {
     id: expressionUtils
     feature: currentFeature
     layer: currentLayer
-    expressionText: JSON.parse(currentLayer.customProperty('QFieldSync/photo_naming'))[field.name]
+    expressionText: currentLayer.customProperty('QFieldSync/photo_naming')!==undefined ? JSON.parse(currentLayer.customProperty('QFieldSync/photo_naming'))[field.name] : ''
   }
 
   Image {
