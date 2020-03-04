@@ -18,8 +18,10 @@ The following signal:
 VisibilityFadingRow {
   id: geometryEditorsToolbar
 
+  // the feature which has its geometry being edited
   property FeatureModel featureModel
   property MapSettings mapSettings
+  // an additional Rubberband model for the tools (when drawing lines in split or addRing tools)
   property RubberbandModel editorRubberbandModel
 
   spacing: 4 * dp

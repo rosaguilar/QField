@@ -21,11 +21,9 @@ VisibilityFadingRow {
     showConfirmButton: true
 
     onConfirm: {
-      var closeLine = true
-      var line = drawPolygonToolbar.rubberbandModel.pointSequence(featureModel.currentLayer.crs, featureModel.currentLayer.wkbType(), closeLine)
       if (!featureModel.currentLayer.editBuffer())
         featureModel.currentLayer.startEditing()
-      var result = featureModel.currentLayer.addRing(line, featureModel.feature.id)
+      var result = QFieldUtils.addRingFromRubberBand(featureModel.currentLayer, featureModel.feature.id, rubberbandModel)
       if ( result !== QgsGeometryStatic.Success )
       {
         // TODO WARN
@@ -36,24 +34,27 @@ VisibilityFadingRow {
       AddRingNotInExistingFeature
       */
         featureModel.currentLayer.rollBack()
+        cancel()
+        finished()
       }
       else
       {
-        polygonGeometry = QFieldUtils.lineToPolygonGeometry(line)
+        var polygonGeometry = QFieldUtils.polygonFromRubberband(rubberbandModel, featureModel.currentLayer.crs)
+        var feature = QFieldUtils.initFeature(featureModel.currentLayer, polygonGeometry)
 
         // Show form
-        var popupComponent = Qt.createComponent("qrc:/EmbeddedFeatureForm.qml")
-        var popup2 = popupComponent.createObject(drawPolygonToolbar);
-        popup2.open()
+        var popupComponent = Qt.createComponent("qrc:/qml/EmbeddedFeatureForm.qml")
+        var embeddedPopup = popupComponent.createObject(mainWindow, {"parent" : mainWindow})
 
+        embeddedPopup.onFeatureSaved.connect(newFeatureSaved)
+        embeddedPopup.onFeatureCancelled.connect(newFeatureDiscarded)
 
         embeddedPopup.state = 'Add'
         embeddedPopup.attributeFormModel.featureModel.currentLayer = featureModel.currentLayer
         embeddedPopup.attributeFormModel.featureModel.resetAttributes()
+        embeddedPopup.attributeFormModel.featureModel.feature = feature
         embeddedPopup.open()
       }
-      cancel()
-      finished()
     }
   }
 
@@ -69,6 +70,19 @@ VisibilityFadingRow {
   function cancel()
   {
     drawPolygonToolbar.cancel()
+  }
+
+  function newFeatureSaved(){
+    featureModel.currentLayer.commitChanges()
+    cancel()
+    finished()
+  }
+
+  function newFeatureDiscarded()
+  {
+    featureModel.currentLayer.rollBack()
+    cancel()
+    finished()
   }
 
 }
