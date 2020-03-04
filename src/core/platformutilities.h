@@ -22,6 +22,7 @@
 #include <QObject>
 #include <qgsfield.h>
 #include "picturesource.h"
+#include "viewstatus.h"
 
 class ProjectSource;
 
@@ -64,7 +65,7 @@ class PlatformUtilities : public QObject
      * The mimetype is detected to indicate the system how the file should
      * be opened.
      */
-    Q_INVOKABLE virtual void open( const QString &uri );
+    Q_INVOKABLE virtual ViewStatus *open( const QString &uri );
 
     /**
      * Returns the QVariant typeName of a \a field.

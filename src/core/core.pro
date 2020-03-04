@@ -8,10 +8,12 @@ android {
     QT += androidextras
     HEADERS += androidplatformutilities.h \
                androidpicturesource.h \
-               androidprojectsource.h
+               androidprojectsource.h \
+               androidviewstatus.h
     SOURCES += androidplatformutilities.cpp \
                androidpicturesource.cpp \
-               androidprojectsource.cpp
+               androidprojectsource.cpp \
+               androidviewstatus.cpp
 }
 
 include( ../../qfield.pri )
@@ -65,7 +67,9 @@ HEADERS += \
     referencingfeaturelistmodel.h \
     featurechecklistmodel.h \
     qfieldappauthrequesthandler.h \
-    expressionutils.h
+    expressionutils.h \
+    fileutils.h \
+    viewstatus.h
 
 SOURCES += \
     appinterface.cpp \
@@ -114,7 +118,9 @@ SOURCES += \
     referencingfeaturelistmodel.cpp \
     featurechecklistmodel.cpp \
     qfieldappauthrequesthandler.cpp \
-    expressionutils.cpp
+    expressionutils.cpp \
+    fileutils.cpp \
+    viewstatus.cpp
 
 INCLUDEPATH += ../../3rdparty/tessellate \
                ../qgsquick \

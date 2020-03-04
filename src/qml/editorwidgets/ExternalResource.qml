@@ -2,6 +2,7 @@ import QtQuick 2.5
 import QtQuick.Controls 2.0
 import QtGraphicalEffects 1.0
 import org.qgis 1.0
+import org.qfield 1.0
 import Theme 1.0
 import ".." as QField
 import QtQuick.Window 2.2
@@ -14,9 +15,34 @@ Item {
   anchors.left: parent.left
   anchors.right: parent.right
 
-  height: Math.max(image.height, button_camera.height, button_gallery.height)
+  height: Math.max(isImage? image.height : linkField.height, button_camera.height, button_gallery.height)
 
   property PictureSource __pictureSource
+  property ViewStatus __viewStatus
+
+  //on all mimetypes image/... and on empty values it should appear as an image widget
+  property bool isImage: FileUtils.mimeTypeName( qgisProject.homePath + '/' + value ).startsWith("image/") || FileUtils.fileName( qgisProject.homePath + '/' + value ) === ''
+
+  //to not break any binding of image.source
+  property var currentValue: value
+  onCurrentValueChanged: {
+      console.log
+      if (isImage ) {
+          if ( FileUtils.fileName( qgisProject.homePath + '/' + value ) === '' ) {
+              image.source=Theme.getThemeIcon("ic_photo_notavailable_black_24dp")
+              geoTagBadge.visible = false
+          } else if ( image.status === Image.Error || !FileUtils.fileExists( qgisProject.homePath + '/' + value ) ) {
+              image.source=Theme.getThemeIcon("ic_broken_image_black_24dp")
+              geoTagBadge.visible = false
+          } else {
+              geoTagBadge.hasGeoTag = ExifTools.hasGeoTag(qgisProject.homePath + '/' + value)
+              image.source= 'file://' + qgisProject.homePath + '/' + value
+              geoTagBadge.visible = true
+          }
+      } else {
+          geoTagBadge.visible = false
+      }
+  }
 
   ExpressionUtils {
     id: expressionUtils
@@ -25,35 +51,57 @@ Item {
     expressionText: currentLayer.customProperty('QFieldSync/photo_naming')!==undefined ? JSON.parse(currentLayer.customProperty('QFieldSync/photo_naming'))[field.name] : ''
   }
 
-  Image {
-    property var currentValue: value
+  Label {
+    id: linkField
+    height: fontMetrics.height + 20 * dp
+    topPadding: 10 * dp
+    bottomPadding: 10 * dp
+    visible: !isImage
+    anchors.left: parent.left
+    anchors.right: parent.right
+    font: Theme.defaultFont
+    color: FileUtils.fileExists(qgisProject.homePath + '/' + value) ? '#0000EE' : 'black'
 
-    id: image
-    width: 200 * dp
-    autoTransform: true
-    fillMode: Image.PreserveAspectFit
-    horizontalAlignment: Image.AlignLeft
+    text: FileUtils.fileName( qgisProject.homePath + '/' + value )
 
-    //source is managed over onCurrentValueChanged since the binding would break somewhere
-    source: Theme.getThemeIcon("ic_photo_notavailable_white_48dp")
+    background: Rectangle {
+      y: linkField.height - height - linkField.bottomPadding / 2
+      implicitWidth: 120 * dp
+      height: 1 * dp
+      color: "#C8E6C9"
+    }
 
     MouseArea {
       anchors.fill: parent
 
       onClicked: {
-        if (image.currentValue)
-          platformUtilities.open( qgisProject.homePath + '/' + image.currentValue );
+        if (value && FileUtils.fileExists(qgisProject.homePath + '/' + value) )
+          __viewStatus = platformUtilities.open( qgisProject.homePath + '/' + value );
       }
     }
+  }
 
-    onCurrentValueChanged: {
-      if (image.status === Image.Error) {
-        image.source=Theme.getThemeIcon("ic_broken_image_black_24dp")
-      } else if (image.currentValue) {
-        geoTagBadge.hasGeoTag = ExifTools.hasGeoTag(qgisProject.homePath + '/' + image.currentValue)
-        image.source= 'file://' + qgisProject.homePath + '/' + image.currentValue
-      } else {
-        image.source=Theme.getThemeIcon("ic_photo_notavailable_white_48dp")
+  FontMetrics {
+    id: fontMetrics
+    font: linkField.font
+  }
+
+  Image {
+    id: image
+    visible: isImage
+    width: 200 * dp
+    autoTransform: true
+    fillMode: Image.PreserveAspectFit
+    horizontalAlignment: Image.AlignLeft
+
+    source: Theme.getThemeIcon("ic_photo_notavailable_black_24dp")
+
+    MouseArea {
+      anchors.fill: parent
+
+      onClicked: {
+        if ( FileUtils.fileExists( qgisProject.homePath + '/' + value ) )
+          platformUtilities.open( qgisProject.homePath + '/' + value );
       }
     }
   }
@@ -61,7 +109,7 @@ Item {
   Image {
     property bool hasGeoTag: false
     id: geoTagBadge
-    visible: true
+    visible: false
     anchors.bottom: image.bottom
     anchors.right: image.right
     anchors.margins: 4 * dp
@@ -70,6 +118,7 @@ Item {
 
   DropShadow {
     anchors.fill: geoTagBadge
+    visible: geoTagBadge.visible
     horizontalOffset: 0
     verticalOffset: 0
     radius: 6.0 * dp
@@ -87,7 +136,7 @@ Item {
     anchors.bottom: parent.bottom
 
     bgcolor: "transparent"
-    visible: !readOnly
+    visible: !readOnly && isImage
 
     onClicked: {
         if ( settings.valueBool("nativeCamera", true) ) {
@@ -113,7 +162,7 @@ Item {
     anchors.bottom: parent.bottom
 
     bgcolor: "transparent"
-    visible: !readOnly
+    visible: !readOnly && isImage
 
     onClicked: {
         var filepath = expressionUtils.evaluate()
@@ -184,4 +233,16 @@ Item {
       }
     }
   }
+
+  Connections {
+    target: __viewStatus
+    onStatusReceived: {
+      if( status )
+      {
+        //default message (we would have the passed error message still)
+        displayToast( qsTr("Cannot handle this file type"))
+      }
+    }
+  }
+
 }
